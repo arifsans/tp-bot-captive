@@ -79,7 +79,7 @@ async def calculate_and_send_results(channel, target_count, int_count, daily_gai
     current_date = datetime.datetime.now()
     
     days_per_week = 7
-    total_daily_gain_legend = daily_gain + (weekly_bonus / days_per_week)
+    total_daily_gain_legend = daily_gain
     total_daily_gain_non_legend = 0 + (weekly_bonus / days_per_week)
     
     days_to_reach_legend = (target_count - int_count) / total_daily_gain_legend
