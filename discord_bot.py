@@ -9,7 +9,10 @@ from bs4 import BeautifulSoup
 
 discord_token = os.environ['DISCORD_TOKEN']
 
-bot = commands.Bot(command_prefix='/')  # Set the bot's command prefix
+intents = discord.Intents.default()
+intents.message_content = True
+
+bot = commands.Bot(command_prefix='/', intents=intents)  # Set the bot's command prefix
 
 intents = discord.Intents.default()
 intents.message_content = True
