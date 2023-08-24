@@ -50,15 +50,18 @@ async def on_message(message):
                                 int_count = target_item_entry.get("intCount")
                                 await message.channel.send(f"`{username.title()} current TP = {int_count} TP`")
                                 
-                                target_count = 1000
-
-                                # Calculate days and ACS for 2X TP/Spin
-                                await calculate_and_send_results(message.channel, target_count, int_count, daily_gain=2, weekly_bonus=2, cost_per_potion=200)
-                                
-                                # Calculate days and ACS for 6X TP/Spin
-                                await calculate_and_send_results(message.channel, target_count, int_count, daily_gain=6, weekly_bonus=6, cost_per_potion=200)
-                                
-                                await message.channel.send("```From Captive with ❤️\nCredit by Zou```")
+                                if int_count >= 1000:
+                                    await message.channel.send("Gausah Sok Merendah Puh, Dah Dapet Wioda Itu")
+                                    
+                                else:
+                                    target_count = 1000
+                                    # Calculate days and ACS for 2X TP/Spin
+                                    await calculate_and_send_results(message.channel, target_count, int_count, daily_gain=2, weekly_bonus=2, cost_per_potion=200)
+                                    
+                                    # Calculate days and ACS for 6X TP/Spin
+                                    await calculate_and_send_results(message.channel, target_count, int_count, daily_gain=6, weekly_bonus=6, cost_per_potion=200)
+                                    
+                                    await message.channel.send("```From Captive with ❤️\nCredit by Zou```")
                                 
                             else:
                                 await message.channel.send(f"{target_item_name} not found in inventory.")
