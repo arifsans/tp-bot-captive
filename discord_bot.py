@@ -30,7 +30,7 @@ async def on_ready():
 
 @client.tree.command(description = 'Calculate TP from your character')
 async def calculate(interaction: discord.Interaction, username: str):
-    await interaction.channel.send("`Please wait...`")
+    await interaction.channel.respond("`Please wait...`")
     response = requests.get(f'https://account.aq.com/CharPage?id={username}')
     if response.status_code == 200:
                 soup = BeautifulSoup(response.content, 'html.parser')
@@ -54,16 +54,16 @@ async def calculate(interaction: discord.Interaction, username: str):
                             target_item_entry = next((item for item in inventory_data if item.get("strName") == target_item_name), None)
                             if target_item_entry:
                                 int_count = target_item_entry.get("intCount")
-                                await interaction.channel.send(f"`{username.title()} current TP = {int_count} TP`")
+                                await interaction.channel.respond(f"`{username.title()} current TP = {int_count} TP`")
                                 
                                 if int_count >= 1000:
-                                    await interaction.channel.send("```Gausah Sok Merendah Puh, Dah Dapet Wioda Itu```")
+                                    await interaction.channel.respond("```Gausah Sok Merendah Puh, Dah Dapet Wioda Itu```")
                                     
                                 else:
                                     if int_count < 10:
-                                        await interaction.channel.send("```Buset Abis Redeem Wioda Nih```")
+                                        await interaction.channel.respond("```Buset Abis Redeem Wioda Nih```")
                                     if int_count > 900:
-                                        await interaction.channel.send("```Bentar Lagi Dapet Wioda Nih```")
+                                        await interaction.channel.respond("```Bentar Lagi Dapet Wioda Nih```")
                                     target_count = 1000
                                     # Calculate days and ACS for 2X TP/Spin
                                     await calculate_and_send_results(interaction.channel, target_count, int_count, daily_gain=2, weekly_bonus=2, cost_per_potion=200)
@@ -71,18 +71,18 @@ async def calculate(interaction: discord.Interaction, username: str):
                                     # Calculate days and ACS for 6X TP/Spin
                                     await calculate_and_send_results(interaction.channel, target_count, int_count, daily_gain=6, weekly_bonus=6, cost_per_potion=200)
                                     
-                                    await interaction.channel.send("```From Captive with ❤️\nCredit by Zou```")
+                                    await interaction.channel.respond("```From Captive with ❤️\nCredit by Zou```")
                                 
                             else:
-                                await interaction.channel.send(f"{target_item_name} not found in inventory.")
+                                await interaction.channel.respond(f"{target_item_name} not found in inventory.")
                         else:
-                            await interaction.channel.send("Failed to fetch inventory data.")
+                            await interaction.channel.respond("Failed to fetch inventory data.")
                     else:
-                        await interaction.channel.send("ccid value not found in the script.")
+                        await interaction.channel.respond("ccid value not found in the script.")
                 else:
-                    await interaction.channel.send("Character Not Found.")
+                    await interaction.channel.respond("Character Not Found.")
     else:
-        await interaction.channel.send("Failed to fetch data from the website.")
+        await interaction.channel.respond("Failed to fetch data from the website.")
 
 async def calculate_and_send_results(channel, target_count, int_count, daily_gain, weekly_bonus, cost_per_potion):
     current_date = datetime.datetime.now()
@@ -108,6 +108,6 @@ async def calculate_and_send_results(channel, target_count, int_count, daily_gai
     spin_needed = (target_count - int_count) / daily_gain
     rounded_spin = math.ceil(spin_needed)
     
-    await channel.send(f"```{daily_gain}X/Spin\nLegend = {rounded_days_legend} days ({future_date_legend_formatted})\nNon-Legend = {rounded_days_non_legend} days ({future_date_non_legend_formatted})\nWith ACS = {rounded_spin} Spin / {rounded_acs} ACS```")
+    await channel.respond(f"```{daily_gain}X/Spin\nLegend = {rounded_days_legend} days ({future_date_legend_formatted})\nNon-Legend = {rounded_days_non_legend} days ({future_date_non_legend_formatted})\nWith ACS = {rounded_spin} Spin / {rounded_acs} ACS```")
 
 client.run(discord_token)
