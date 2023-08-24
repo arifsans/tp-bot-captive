@@ -30,7 +30,7 @@ async def on_ready():
 
 @client.tree.command(description = 'Calculate TP from your character')
 async def calculate(interaction: Interaction, username: str):
-    await interaction.channel.send("`Please wait...`")
+    await interaction.response.send_message("`Please wait...`")
     response = requests.get(f'https://account.aq.com/CharPage?id={username}')
     if response.status_code == 200:
                 soup = BeautifulSoup(response.content, 'html.parser')
