@@ -79,21 +79,26 @@ async def calculate_and_send_results(channel, target_count, int_count, daily_gai
     current_date = datetime.datetime.now()
     
     days_per_week = 7
-    total_daily_gain = daily_gain + (weekly_bonus / days_per_week)
+    total_daily_gain_legend = daily_gain + (weekly_bonus / days_per_week)
+    total_daily_gain_non_legend = 0 + (weekly_bonus / days_per_week)
     
-    days_to_reach = (target_count - int_count) / total_daily_gain
-    rounded_days = math.ceil(days_to_reach)  # Round up the days
-    future_date_legend = current_date + datetime.timedelta(days=rounded_days)
+    days_to_reach_legend = (target_count - int_count) / total_daily_gain_legend
+    days_to_reach_non_legend = (target_count - int_count) / total_daily_gain_non_legend
+    
+    rounded_days_legend = math.ceil(days_to_reach_legend)  # Round up the days
+    rounded_days_non_legend = math.ceil(days_to_reach_non_legend)  #Round up the days
+    
+    future_date_legend = current_date + datetime.timedelta(days=rounded_days_legend)
     future_date_legend_formatted = future_date_legend.strftime('%d %B %Y')
     
-    days_to_reach_non_legend = (target_count - int_count) / weekly_bonus
-    rounded_days_non_legend = math.ceil(days_to_reach_non_legend)  # Round up the days
     future_date_non_legend = current_date + datetime.timedelta(days=rounded_days_non_legend)
     future_date_non_legend_formatted = future_date_non_legend.strftime('%d %B %Y')
     
     acs_needed = (target_count - int_count) * (cost_per_potion / daily_gain)  # ACS needed to buy the required potions
     rounded_acs = math.ceil(acs_needed)  # Round up the ACS
+    spin_needed = (target_count - int_count) / daily_gain
+    rounded_spin = math.ceil(spin_needed)
     
-    await channel.send(f"```{daily_gain}X/Spin\nLegend = {rounded_days} days ({future_date_legend_formatted})\nNon-Legend = {rounded_days_non_legend} days ({future_date_non_legend_formatted})\nWith ACS = {rounded_acs} ACS```")
+    await channel.send(f"```{daily_gain}X/Spin\nLegend = {rounded_days_legend} days ({future_date_legend_formatted})\nNon-Legend = {rounded_days_non_legend} days ({future_date_non_legend_formatted})\nWith ACS = {rounded_spin} Spin / {rounded_acs} ACS```")
 
 client.run(discord_token)
