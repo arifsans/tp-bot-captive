@@ -7,7 +7,6 @@ import math
 import os
 from bs4 import BeautifulSoup
 from discord import app_commands, Interaction
-import aiohttp
 
 discord_token = os.environ['DISCORD_TOKEN']
 my_guild = discord.Object(id=os.environ['GUILD_ID'])
@@ -16,7 +15,6 @@ class MyClient(discord.Client):
     def __init__(self, *, intents: discord.Intents):
         super().__init__(intents=intents)
         self.tree = app_commands.CommandTree(self)
-        self.session = aiohttp.ClientSession()
 
     async def close(self):
         await super().close()
