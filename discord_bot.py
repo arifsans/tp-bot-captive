@@ -58,7 +58,7 @@ async def on_message(message):
                                 # Calculate days and ACS for 6X TP/Spin
                                 await calculate_and_send_results(message.channel, target_count, int_count, daily_gain=6, weekly_bonus=6, cost_per_potion=200)
                                 
-                                await message.channel.send("```From Captive with <3\nCredit by Zou```")
+                                await message.channel.send("```From Captive with ❤️\nCredit by Zou```")
                                 
                             else:
                                 await message.channel.send(f"{target_item_name} not found in inventory.")
