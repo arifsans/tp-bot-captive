@@ -5,28 +5,34 @@ import re
 import math
 import os
 from bs4 import BeautifulSoup
+from discord import app_commands
 
 discord_token = os.environ['DISCORD_TOKEN']
+my_guild = discord.Object(id=os.environ['GUILD_ID'])
+
+
+class MyClient(discord.Client):
+    def __init__(self,*,intents:discord.Intents):
+        super().__init__(intents=intents)
+        self.tree = app_commands.CommandTree(self)
+        
+    async def setup_hook(self):
+        self.tree.copy_global_to(guild=my_guild)
+        await self.tree.sync(guild=my_guild)
 
 intents = discord.Intents.default()
 intents.message_content = True
-client = discord.Client(intents=intents)
+client = MyClient(intents=intents)
 
 @client.event
 async def on_ready():
     print(f"We have logged in as {client.user}")
 
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
-
-    if message.content.startswith('!calculate'):
-        await message.channel.send("`Please wait...`")
-        try:
-            username = message.content.split(' ', 1)[1]  # Extract the username from the command
-            response = requests.get(f'https://account.aq.com/CharPage?id={username}')
-            if response.status_code == 200:
+@client.tree.command(description = 'Calculate TP from your character')
+async def calculate(interaction: discord.Interaction, username: str):
+    await interaction.channel.send("`Please wait...`")
+    response = requests.get(f'https://account.aq.com/CharPage?id={username}')
+    if response.status_code == 200:
                 soup = BeautifulSoup(response.content, 'html.parser')
 
                 # Use regular expression to extract the ccid value from JavaScript
@@ -48,39 +54,35 @@ async def on_message(message):
                             target_item_entry = next((item for item in inventory_data if item.get("strName") == target_item_name), None)
                             if target_item_entry:
                                 int_count = target_item_entry.get("intCount")
-                                await message.channel.send(f"`{username.title()} current TP = {int_count} TP`")
+                                await interaction.channel.send(f"`{username.title()} current TP = {int_count} TP`")
                                 
                                 if int_count >= 1000:
-                                    await message.channel.send("```Gausah Sok Merendah Puh, Dah Dapet Wioda Itu```")
+                                    await interaction.channel.send("```Gausah Sok Merendah Puh, Dah Dapet Wioda Itu```")
                                     
                                 else:
                                     if int_count < 10:
-                                        await message.channel.send("```Buset Abis Redeem Wioda Nih```")
+                                        await interaction.channel.send("```Buset Abis Redeem Wioda Nih```")
                                     if int_count > 900:
-                                        await message.channel.send("```Bentar Lagi Dapet Wioda Nih```")
+                                        await interaction.channel.send("```Bentar Lagi Dapet Wioda Nih```")
                                     target_count = 1000
                                     # Calculate days and ACS for 2X TP/Spin
-                                    await calculate_and_send_results(message.channel, target_count, int_count, daily_gain=2, weekly_bonus=2, cost_per_potion=200)
+                                    await calculate_and_send_results(interaction.channel, target_count, int_count, daily_gain=2, weekly_bonus=2, cost_per_potion=200)
                                     
                                     # Calculate days and ACS for 6X TP/Spin
-                                    await calculate_and_send_results(message.channel, target_count, int_count, daily_gain=6, weekly_bonus=6, cost_per_potion=200)
+                                    await calculate_and_send_results(interaction.channel, target_count, int_count, daily_gain=6, weekly_bonus=6, cost_per_potion=200)
                                     
-                                    await message.channel.send("```From Captive with ❤️\nCredit by Zou```")
+                                    await interaction.channel.send("```From Captive with ❤️\nCredit by Zou```")
                                 
                             else:
-                                await message.channel.send(f"{target_item_name} not found in inventory.")
+                                await interaction.channel.send(f"{target_item_name} not found in inventory.")
                         else:
-                            await message.channel.send("Failed to fetch inventory data.")
+                            await interaction.channel.send("Failed to fetch inventory data.")
                     else:
-                        await message.channel.send("ccid value not found in the script.")
+                        await interaction.channel.send("ccid value not found in the script.")
                 else:
-                    await message.channel.send("Character Not Found.")
-            else:
-                await message.channel.send("Failed to fetch data from the website.")
-        except IndexError:
-            await message.channel.send("Please provide a username after the command.")
-        except Exception as e:
-            await message.channel.send(f"An error occurred: {str(e)}")
+                    await interaction.channel.send("Character Not Found.")
+    else:
+        await interaction.channel.send("Failed to fetch data from the website.")
 
 async def calculate_and_send_results(channel, target_count, int_count, daily_gain, weekly_bonus, cost_per_potion):
     current_date = datetime.datetime.now()
