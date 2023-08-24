@@ -51,9 +51,13 @@ async def on_message(message):
                                 await message.channel.send(f"`{username.title()} current TP = {int_count} TP`")
                                 
                                 if int_count >= 1000:
-                                    await message.channel.send("Gausah Sok Merendah Puh, Dah Dapet Wioda Itu")
+                                    await message.channel.send("```Gausah Sok Merendah Puh, Dah Dapet Wioda Itu```")
                                     
                                 else:
+                                    if int_count < 10:
+                                        await message.channel.send("```Buset Abis Redeem Wioda Nih```")
+                                    if int_count > 900:
+                                        await message.channel.send("```Bentar Lagi Dapet Wioda Nih```")
                                     target_count = 1000
                                     # Calculate days and ACS for 2X TP/Spin
                                     await calculate_and_send_results(message.channel, target_count, int_count, daily_gain=2, weekly_bonus=2, cost_per_potion=200)
