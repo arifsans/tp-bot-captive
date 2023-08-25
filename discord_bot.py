@@ -28,6 +28,11 @@ client = MyClient(intents=intents)
 async def on_ready():
     print(f"We have logged in as {client.user}")
 
+@client.tree.command(description = 'Introduce yourself with name, charname, and guild')
+async def introduce(interaction: Interaction, fullname: str,aqwname: str, guild: str):
+    await interaction.response.send_message(f"```NAMA PANGGILAN    : {fullname}\nNAMA KARAKTER     : {aqwname}\nGUILD             : {guild}```")
+
+
 @client.tree.command(description = 'Calculate TP from your character')
 async def calculate(interaction: Interaction, username: str):
     await interaction.response.send_message("`Please wait...`")
