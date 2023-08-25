@@ -31,20 +31,21 @@ async def on_ready():
 
 @client.tree.command(description = 'Introduce yourself with name, charname, and guild')
 async def introduce(interaction: Interaction, fullname: str, aqwname: str, guild: str):
+    await interaction.response.defer()
     if not fullname or not aqwname or not guild:
-        interaction.response.defer()
-        asyncio.sleep()
+        await asyncio.sleep(delay=0)
         await interaction.followup.send("Datadiri aja kamu kosongin apalagi hati doi 😭")
         return
     
-    interaction.response.defer()
-    asyncio.sleep()
+    asyncio.sleep(delay=0)
     await interaction.followup.send(f"```NAMA PANGGILAN    : {fullname.title()}\nNAMA KARAKTER     : {aqwname.title()}\nGUILD             : {guild.title()}```")
 
 
 @client.tree.command(description = 'Calculate TP from your character')
 async def calculate(interaction: Interaction, username: str):
-    await interaction.response.send_message("`Please wait...`")
+    await interaction.response.defer()
+    await asyncio.sleep(delay=0)
+    await interaction.followup.send("`Please wait...`")
     response = requests.get(f'https://account.aq.com/CharPage?id={username}')
     if response.status_code == 200:
                 soup = BeautifulSoup(response.content, 'html.parser')
@@ -68,35 +69,45 @@ async def calculate(interaction: Interaction, username: str):
                             target_item_entry = next((item for item in inventory_data if item.get("strName") == target_item_name), None)
                             if target_item_entry:
                                 int_count = target_item_entry.get("intCount")
-                                await interaction.channel.send(f"`{username.title()} current TP = {int_count} TP`")
+                                await asyncio.sleep(delay=0)
+                                await interaction.followup.send(f"`{username.title()} current TP = {int_count} TP`")
                                 
                                 if int_count >= 1000:
-                                    await interaction.channel.send("```Gausah Sok Merendah Puh, Dah Dapet Wioda Itu```")
+                                    await asyncio.sleep(delay=0)
+                                    await interaction.followup.send("```Gausah Sok Merendah Puh, Dah Dapet Wioda Itu```")
                                     
                                 else:
                                     if int_count < 10:
-                                        await interaction.channel.send("```Buset Abis Redeem Wioda Nih```")
+                                        await asyncio.sleep(delay=0)
+                                        await interaction.followup.send("```Buset Abis Redeem Wioda Nih```")
                                     if int_count > 900:
-                                        await interaction.channel.send("```Bentar Lagi Dapet Wioda Nih```")
+                                        await asyncio.sleep(delay=0)
+                                        await interaction.followup.send("```Bentar Lagi Dapet Wioda Nih```")
                                     target_count = 1000
                                     # Calculate days and ACS for 2X TP/Spin
-                                    await calculate_and_send_results(interaction.channel, target_count, int_count, daily_gain=2, weekly_bonus=2, cost_per_potion=200)
+                                    await calculate_and_send_results(interaction.followup, target_count, int_count, daily_gain=2, weekly_bonus=2, cost_per_potion=200)
                                     
                                     # Calculate days and ACS for 6X TP/Spin
-                                    await calculate_and_send_results(interaction.channel, target_count, int_count, daily_gain=6, weekly_bonus=6, cost_per_potion=200)
-                                    
-                                    await interaction.channel.send("```From Captive with ❤️\nCredit by Zou```")
+                                    await calculate_and_send_results(interaction.followup, target_count, int_count, daily_gain=6, weekly_bonus=6, cost_per_potion=200)
+
+                                    await asyncio.sleep(delay=0)
+                                    await interaction.followup.send("```From Captive with ❤️\nCredit by Zou```")
                                 
                             else:
-                                await interaction.channel.send(f"{target_item_name} not found in inventory.")
+                                await asyncio.sleep(delay=0)
+                                await interaction.followup.send(f"{target_item_name} not found in inventory.")
                         else:
-                            await interaction.channel.send("Failed to fetch inventory data.")
+                            await asyncio.sleep(delay=0)
+                            await interaction.followup.send("Failed to fetch inventory data.")
                     else:
-                        await interaction.channel.send("ccid value not found in the script.")
+                        await asyncio.sleep(delay=0)
+                        await interaction.followup.send("ccid value not found in the script.")
                 else:
-                    await interaction.channel.send("Character Not Found.")
+                    await asyncio.sleep(delay=0)
+                    await interaction.followup.send("Character Not Found.")
     else:
-        await interaction.channel.send("Failed to fetch data from the website.")
+        await asyncio.sleep(delay=0)
+        await interaction.followup.send("Failed to fetch data from the website.")
 
 async def calculate_and_send_results(channel, target_count, int_count, daily_gain, weekly_bonus, cost_per_potion):
     current_date = datetime.datetime.now()
@@ -122,6 +133,7 @@ async def calculate_and_send_results(channel, target_count, int_count, daily_gai
     spin_needed = (target_count - int_count) / daily_gain
     rounded_spin = math.ceil(spin_needed)
     
+    await asyncio.sleep(delay=0)
     await channel.send(f"```{daily_gain}X/Spin\nLegend = {rounded_days_legend} days ({future_date_legend_formatted})\nNon-Legend = {rounded_days_non_legend} days ({future_date_non_legend_formatted})\nWith ACS = {rounded_spin} Spin / {rounded_acs} ACS```")
 
 client.run(discord_token)
