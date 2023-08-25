@@ -29,7 +29,11 @@ async def on_ready():
     print(f"We have logged in as {client.user}")
 
 @client.tree.command(description = 'Introduce yourself with name, charname, and guild')
-async def introduce(interaction: Interaction, fullname: str,aqwname: str, guild: str):
+async def introduce(interaction: Interaction, fullname: str, aqwname: str, guild: str):
+    if not fullname or not aqwname or not guild:
+        await interaction.response.send_message("Datadiri aja kamu kosongin apalagi hati doi 😭")
+        return
+    
     await interaction.response.send_message(f"```NAMA PANGGILAN    : {fullname}\nNAMA KARAKTER     : {aqwname}\nGUILD             : {guild}```")
 
 
