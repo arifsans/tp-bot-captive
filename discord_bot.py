@@ -34,7 +34,17 @@ async def introduce(interaction: Interaction, fullname: str, aqwname: str, guild
         await interaction.response.send_message("Datadiri aja kamu kosongin apalagi hati doi 😭")
         return
     
-    await interaction.response.send_message(f"```NAMA PANGGILAN    : {fullname.title()}\nNAMA KARAKTER     : {aqwname.title()}\nGUILD             : {guild.title()}```")
+    member = interaction.user
+    role_id = 1144684681263075419
+    role = interaction.guild.get_role(role_id)
+
+    if role:
+        await member.add_roles(role)
+        await interaction.response.send_message(f"```NAMA PANGGILAN    : {fullname.title()}\nNAMA KARAKTER     : {aqwname.title()}\nGUILD             : {guild.title()}```")
+        
+    else:
+        await interaction.response.send_message("The role couldn't be found.")
+
 
 
 @client.tree.command(description = 'Calculate TP from your character')
