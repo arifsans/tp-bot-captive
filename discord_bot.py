@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import discord
 import requests
@@ -31,10 +32,14 @@ async def on_ready():
 @client.tree.command(description = 'Introduce yourself with name, charname, and guild')
 async def introduce(interaction: Interaction, fullname: str, aqwname: str, guild: str):
     if not fullname or not aqwname or not guild:
-        await interaction.response.send_message("Datadiri aja kamu kosongin apalagi hati doi 😭")
+        interaction.response.defer()
+        asyncio.sleep()
+        await interaction.followup.send("Datadiri aja kamu kosongin apalagi hati doi 😭")
         return
     
-    await interaction.response.send_message(f"```NAMA PANGGILAN    : {fullname}\nNAMA KARAKTER     : {aqwname}\nGUILD             : {guild}```")
+    interaction.response.defer()
+    asyncio.sleep()
+    await interaction.followup.send(f"```NAMA PANGGILAN    : {fullname.title()}\nNAMA KARAKTER     : {aqwname.title()}\nGUILD             : {guild.title()}```")
 
 
 @client.tree.command(description = 'Calculate TP from your character')
