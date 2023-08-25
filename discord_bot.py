@@ -31,15 +31,15 @@ async def on_ready():
 @client.tree.command(description = 'Introduce yourself with name, charname, and guild')
 async def introduce(interaction: Interaction, fullname: str, aqwname: str, guild: str):
     if not fullname or not aqwname or not guild:
-        await interaction.channel.send("Datadiri aja kamu kosongin apalagi hati doi 😭")
+        await interaction.response.send_message("Datadiri aja kamu kosongin apalagi hati doi 😭")
         return
     
-    await interaction.channel.send(f"```NAMA PANGGILAN    : {fullname.title()}\nNAMA KARAKTER     : {aqwname.title()}\nGUILD             : {guild.title()}```")
+    await interaction.response.send_message(f"```NAMA PANGGILAN    : {fullname.title()}\nNAMA KARAKTER     : {aqwname.title()}\nGUILD             : {guild.title()}```")
 
 
 @client.tree.command(description = 'Calculate TP from your character')
 async def calculate(interaction: Interaction, username: str):
-    await interaction.channel.send("```Please wait...```")
+    await interaction.response.send_message("```Please wait...```")
     response = requests.get(f'https://account.aq.com/CharPage?id={username}')
     if response.status_code == 200:
                 soup = BeautifulSoup(response.content, 'html.parser')
