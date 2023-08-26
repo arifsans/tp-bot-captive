@@ -39,14 +39,14 @@ async def introduce(interaction: Interaction, fullname: str, aqwname: str, guild
     unverifId = 1144680870272303256
     verif = interaction.guild.get_role(verifId)
     unverif = interaction.guild.get_role(unverifId)
+    
+    print(f"Member {member} melakukan introduce")
+    print(f"Melakukan Pemeriksaan Role {verif}")
+    print(f"Melakukan Pemeriksaan Role {unverif}")
 
     if verif:
+        await member.remove_roles(unverif)
         await member.add_roles(verif)
-        if unverif:
-            await member.remove_roles(unverif)
-        else:
-            await interaction.response.send_message("The role unverified couldn't be found.")
-            
         await interaction.response.send_message(f"```NAMA PANGGILAN    : {fullname.title()}\nNAMA KARAKTER     : {aqwname.title()}\nGUILD             : {guild.title()}```")
         
     else:
