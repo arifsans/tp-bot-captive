@@ -49,11 +49,16 @@ async def introduce(interaction: Interaction, fullname: str, aqwname: str, guild
             await member.remove_roles(unverif)
             
         async for message in interaction.channel.history():
-            if message.author.id == member.id and "NAMA PANGGILAN" in message.content:
+            start = 13
+            end = start + len(f"{member.id}")
+            previousId = message.content[start:end]
+            currentId = str(member.id)
+            if previousId == currentId and message.content.startswith("```Halo User"):
                await message.delete()
+               break
             
         await member.add_roles(verif)
-        await interaction.response.send_message(f"```NAMA PANGGILAN    : {fullname.title()}\nNAMA KARAKTER     : {aqwname.title()}\nGUILD             : {guild.title()}```")
+        await interaction.response.send_message(f"```Halo User {member.id}\n\nNAMA PANGGILAN    : {fullname.title()}\nNAMA KARAKTER     : {aqwname.title()}\nGUILD             : {guild.title()}```")
         
     else:
         await interaction.response.send_message("The role verified couldn't be found.")
