@@ -45,12 +45,19 @@ async def introduce(interaction: Interaction, fullname: str, aqwname: str, guild
     print(f"Melakukan Pemeriksaan Role {unverif}")
 
     if verif:
-        await member.remove_roles(unverif)
+        if unverif in member.roles:
+            await member.remove_roles(unverif)
+        elif verif in member.roles:
+            # Delete the previous introduction message
+            async for message in interaction.channel.history():
+                if message.author == member and message.content.startswith("```NAMA PANGGILAN"):
+                    await message.delete()
+            
         await member.add_roles(verif)
         await interaction.response.send_message(f"```NAMA PANGGILAN    : {fullname.title()}\nNAMA KARAKTER     : {aqwname.title()}\nGUILD             : {guild.title()}```")
-        
     else:
         await interaction.response.send_message("The role verified couldn't be found.")
+
 
 
 
