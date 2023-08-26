@@ -28,7 +28,7 @@ client = MyClient(intents=intents)
 async def on_ready():
     print(f"We have logged in as {client.user}")
 
-@client.tree.command(description = 'Introduce yourself with name, charname, and guild')
+@client.tree.command(description='Introduce yourself with name, charname, and guild')
 async def introduce(interaction: Interaction, fullname: str, aqwname: str, guild: str):
     if not fullname or not aqwname or not guild:
         await interaction.response.send_message("Datadiri aja kamu kosongin apalagi hati doi 😭")
@@ -43,20 +43,27 @@ async def introduce(interaction: Interaction, fullname: str, aqwname: str, guild
     print(f"Member {member} melakukan introduce")
     print(f"Melakukan Pemeriksaan Role {verif}")
     print(f"Melakukan Pemeriksaan Role {unverif}")
+    
+    response_content = f"```NAMA PANGGILAN    : {fullname.title()}\nNAMA KARAKTER     : {aqwname.title()}\nGUILD             : {guild.title()}```"
 
     if verif:
         if unverif in member.roles:
             await member.remove_roles(unverif)
-        elif verif in member.roles:
-            # Delete the previous introduction message
-            async for message in interaction.channel.history():
-                if message.author == member and message.content.startswith("```NAMA PANGGILAN"):
-                    await message.delete()
+
+        if verif in member.roles:
             
-        await member.add_roles(verif)
-        await interaction.response.send_message(f"```NAMA PANGGILAN    : {fullname.title()}\nNAMA KARAKTER     : {aqwname.title()}\nGUILD             : {guild.title()}```")
+            # Find and edit the previous introduction message
+            async for message in interaction.channel.history():
+                if message.author == client.user and message.content.startswith("```NAMA PANGGILAN"):
+                    await message.edit(content=response_content)
+                    break  # Stop searching after editing the first introduction message
+
+        else:
+            await interaction.response.send_message(response_content)
+        
     else:
         await interaction.response.send_message("The role verified couldn't be found.")
+
 
 
 
