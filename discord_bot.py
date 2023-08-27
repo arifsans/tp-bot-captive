@@ -56,8 +56,12 @@ async def introduce(interaction: Interaction, fullname: str, aqwname: str, guild
             if previousId == currentId and message.content.startswith("```Halo User"):
                await message.delete()
                break
+        
+        if guild == "-":
+            guild = "Solo Player"
             
         await member.add_roles(verif)
+        await member.edit(nick = f"{aqwname.title()} | {guild.title()}")
         await interaction.response.send_message(f"```Halo User {member.id}\n\nNAMA PANGGILAN    : {fullname.title()}\nNAMA KARAKTER     : {aqwname.title()}\nGUILD             : {guild.title()}```")
         
     else:
