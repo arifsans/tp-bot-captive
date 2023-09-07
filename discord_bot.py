@@ -218,7 +218,7 @@ async def rank(interaction: Interaction):
     datas = []
             
     sorted_member_achievement = sorted(member_achievement, key=lambda x: x["achievements"], reverse=True)
-    for member_data in enumerate(sorted_member_achievement,start=1):
+    for member_data in sorted_member_achievement:
         nickname = member_data["nick"]
         achievements = member_data["achievements"]
         datas.append((f"{nickname} - {achievements} Achievements"))
