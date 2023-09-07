@@ -22,6 +22,7 @@ class MyClient(discord.Client):
 
 intents = discord.Intents.default()
 intents.message_content = True
+intents.members = True
 client = MyClient(intents=intents)
 
 @client.event
@@ -157,7 +158,7 @@ async def calculate_and_send_results(channel, target_count, int_count, daily_gai
 @client.tree.command(description = 'Rank AQW On Captive Server By Achievements')
 async def rank(interaction: Interaction):
     await interaction.response.send_message("```Please wait...```")
-    members = interaction.guild.fetch_members(limit=None)
+    members = interaction.guild.members
     
     trimmed_names = []
     
