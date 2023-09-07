@@ -166,7 +166,7 @@ async def rank(interaction: Interaction):
     
     for member in non_bot_members:
         try:
-            if member.nick.__contains__(' | ') :
+            if member.nick and ' | ' in member.nick:
                 trimmed_name = member.nick.split(' | ')[0]
                 print(trimmed_name)
                 trimmed_names.append(trimmed_name)
