@@ -168,6 +168,7 @@ async def rank(interaction: Interaction):
                 trimmed_name = member.nick.split(' | ')[0]
             
             # Append the trimmed name to the list
+            print(trimmed_name)
             trimmed_names.append(trimmed_name)
         except IndexError:
             # Skip members with nicknames that don't match the format
