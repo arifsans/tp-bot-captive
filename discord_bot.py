@@ -150,5 +150,76 @@ async def calculate_and_send_results(channel, target_count, int_count, daily_gai
     rounded_spin = math.ceil(spin_needed)
     
     await channel.send(f"```{daily_gain}X/Spin\nLegend = {rounded_days_legend} days ({future_date_legend_formatted})\nNon-Legend = {rounded_days_non_legend} days ({future_date_non_legend_formatted})\nWith ACS = {rounded_spin} Spin / {rounded_acs} ACS```")
+    
+
+
+
+@client.tree.command()
+async def rank(interaction: Interaction):
+    members = client.get_all_members()
+    
+    trimmed_names = []
+    
+    for member in members:
+        try:
+            if member.nick :
+                trimmed_name = member.nick.split(' | ')[0]
+            else:
+                continue
+            
+            # Append the trimmed name to the list
+            trimmed_names.append(trimmed_name)
+        except IndexError:
+            # Skip members with nicknames that don't match the format
+            continue
+
+    # Create a dictionary to store the lengths for each member
+    member_lengths = {}
+    
+    member_achievement = []
+    
+    # Iterate through trimmed names and retrieve data for each member
+    for trimmed_name in trimmed_names:
+        try:
+            # Create a dynamic URL based on the trimmed name
+            response = requests.get(f'https://account.aq.com/CharPage?id={trimmed_name}')  # Replace with your actual endpoint structure
+            
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.content, 'html.parser')
+
+                # Use regular expression to extract the ccid value from JavaScript
+                ccid_script = soup.find('script', string=re.compile(r'var ccid = \d+;'))
+                if ccid_script:
+                    ccid_content = ccid_script.string
+                    ccid_match = re.search(r'var ccid = (\d+);', ccid_content)
+                    if ccid_match:
+                        ccid = int(ccid_match.group(1))
+
+                        # Now make a request to the API endpoint with the obtained ccid
+                        badge_url = f"https://account.aq.com/CharPage/Badges?ccid={ccid}"
+                        badge_response = requests.get(badge_url)
+
+                        if badge_response.status_code == 200:
+                            badge_data = badge_response.json()
+                            member_achievement.append({"nick":trimmed_name,"achievements":len(badge_data)})
+                        else:
+                            await interaction.channel.send("Failed to fetch badges data.")
+                    else:
+                        await interaction.channel.send("ccid value not found in the script.")
+                else:
+                    await interaction.channel.send("Character Not Found.")
+            else:
+                await interaction.channel.send("Failed to fetch data from the website.")
+            
+        except Exception as e:
+            # Store an error message if an exception occurs
+            member_lengths[trimmed_name] = f'Error: {str(e)}'
+            
+    sorted_member_achievement = sorted(member_achievement, key=lambda x: x["achievements"], reverse=True)
+    for rank, member_data in enumerate(sorted_member_achievement,start=1):
+        nickname = member_data["nick"]
+        achievements = member_data["achievements"]
+        print(f"{rank}.     {nickname} - {achievements} Achievements")
+
 
 client.run(discord_token)
