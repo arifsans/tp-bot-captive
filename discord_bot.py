@@ -166,8 +166,6 @@ async def rank(interaction: Interaction):
         try:
             if member.nick :
                 trimmed_name = member.nick.split(' | ')[0]
-            else:
-                continue
             
             # Append the trimmed name to the list
             trimmed_names.append(trimmed_name)
@@ -205,13 +203,13 @@ async def rank(interaction: Interaction):
                             badge_data = badge_response.json()
                             member_achievement.append({"nick":trimmed_name,"achievements":len(badge_data)})
                         else:
-                            await interaction.channel.send("Failed to fetch badges data.")
+                            print("Failed to fetch badges data.")
                     else:
-                        await interaction.channel.send("ccid value not found in the script.")
+                        print("ccid value not found in the script.")
                 else:
-                    await interaction.channel.send("Character Not Found.")
+                    print("Character Not Found.")
             else:
-                await interaction.channel.send("Failed to fetch data from the website.")
+                print("Failed to fetch data from the website.")
             
         except Exception as e:
             # Store an error message if an exception occurs
