@@ -158,18 +158,18 @@ async def calculate_and_send_results(channel, target_count, int_count, daily_gai
 @client.tree.command(description = 'Rank AQW On Captive Server By Achievements')
 async def rank(interaction: Interaction):
     await interaction.response.send_message("```Please wait...```")
-    members = interaction.guild.members
+    members = client.get_all_members()
     
     trimmed_names = []
     
-    for member in members:
+    non_bot_members = [member for member in members if not member.bot]
+    
+    for member in non_bot_members:
         try:
-            if member.nick :
+            if member.nick.__contains__(' | ') :
                 trimmed_name = member.nick.split(' | ')[0]
-            
-            # Append the trimmed name to the list
-            print(trimmed_name)
-            trimmed_names.append(trimmed_name)
+                print(trimmed_name)
+                trimmed_names.append(trimmed_name)
         except IndexError:
             # Skip members with nicknames that don't match the format
             continue
@@ -183,7 +183,7 @@ async def rank(interaction: Interaction):
     for trimmed_name in trimmed_names:
         try:
             # Create a dynamic URL based on the trimmed name
-            response = requests.get(f'https://account.aq.com/CharPage?id={trimmed_name}')  # Replace with your actual endpoint structure
+            response = await requests.get(f'https://account.aq.com/CharPage?id={trimmed_name}')  # Replace with your actual endpoint structure
             
             if response.status_code == 200:
                 soup = BeautifulSoup(response.content, 'html.parser')
@@ -197,8 +197,7 @@ async def rank(interaction: Interaction):
                         ccid = int(ccid_match.group(1))
 
                         # Now make a request to the API endpoint with the obtained ccid
-                        badge_url = f"https://account.aq.com/CharPage/Badges?ccid={ccid}"
-                        badge_response = requests.get(badge_url)
+                        badge_response = await requests.get(f"https://account.aq.com/CharPage/Badges?ccid={ccid}")
 
                         if badge_response.status_code == 200:
                             badge_data = badge_response.json()
