@@ -157,7 +157,7 @@ async def calculate_and_send_results(channel, target_count, int_count, daily_gai
 @client.tree.command(description = 'Rank AQW On Captive Server By Achievements')
 async def rank(interaction: Interaction):
     await interaction.response.send_message("```Please wait...```")
-    members = client.get_all_members()
+    members = interaction.guild.fetch_members(limit=None)
     
     trimmed_names = []
     
@@ -219,12 +219,12 @@ async def rank(interaction: Interaction):
     datas = []
             
     sorted_member_achievement = sorted(member_achievement, key=lambda x: x["achievements"], reverse=True)
-    for rank, member_data in enumerate(sorted_member_achievement,start=1):
+    for member_data in enumerate(sorted_member_achievement,start=1):
         nickname = member_data["nick"]
         achievements = member_data["achievements"]
-        datas.append((f"{rank}.     {nickname} - {achievements} Achievements"))
+        datas.append((f"{nickname} - {achievements} Achievements"))
 
     formatted_list = '\n'.join([f"{i + 1}. {item}" for i, item in enumerate(datas)])
-    await interaction.channel.send(formatted_list)
+    await interaction.channel.send(f'```{formatted_list}```')
     
 client.run(discord_token)
