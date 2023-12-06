@@ -261,7 +261,8 @@ async def delete_user_messages(member, interaction):
         
 # Connect to the MySQL database
 conn = mysql.connector.connect(
-    host='db-buf-05.sparkedhost.us:3306',
+    host='db-buf-05.sparkedhost.us',
+    port=3306,
     user='u105006_8zIf2CsKXJ',
     password='ugZ8y7y+i5P05@XJMMXmHVVj',
     database='s105006_sabung4'
