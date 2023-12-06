@@ -267,7 +267,8 @@ async def delete_user_messages(member, interaction):
             break
         
 MAX_REGISTRATIONS = 64  # Set the maximum number of registrations
-ALLOWED_CHANNEL_ID = 1181895637797703680  # Replace with your desired channel ID
+ALLOWED_CHANNEL_ID = 1181895637797703680  # channel ID register
+ALLOWED_USER_ID = 472750553957400597 # my user id
 
 @client.tree.command(description='Register for Captive event')
 async def register_event(interaction: Interaction, pet_name: str, facebook_name: str, aqw_name: str, guild_name: str, pet_url: str):
@@ -281,8 +282,8 @@ async def register_event(interaction: Interaction, pet_name: str, facebook_name:
     )
     cursor = conn.cursor()
 
-    # Check if the command is executed in the allowed channel
-    if interaction.channel_id != ALLOWED_CHANNEL_ID:
+    # Check if the command is executed in the allowed channel or by the allowed user
+    if interaction.channel_id != ALLOWED_CHANNEL_ID and interaction.user.id != ALLOWED_USER_ID:
         await interaction.response.send_message("This command can only be executed in the specified channel.")
         cursor.close()
         conn.close()
@@ -324,7 +325,7 @@ async def register_event(interaction: Interaction, pet_name: str, facebook_name:
         await interaction.response.send_message(registration_details)
     
     finally:
-        # Close the cursor and connection when done
+        # Close the cursor and connection when done (even if an exception occurs)
         cursor.close()
         conn.close()
 
