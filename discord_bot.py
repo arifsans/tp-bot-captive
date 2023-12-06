@@ -89,7 +89,7 @@ async def introduce(interaction: Interaction, fullname: str, aqwname: str, guild
         if len(nickname) > 32:
             nickname = f"{aqwname.title()} [{achievements}] | -"
             pjgNick = len(nickname)
-            await interaction.response.send_message(f"```{text}\n\nNama guild lu kepanjangan cok, tolong singkat terus tulis dibawah deh (Max {32-pjgNick})```")
+            await interaction.response.send_message(f"```{text}\n\nNama lu / guild lu kepanjangan cok, tolong singkat terus tulis dibawah deh (Max {32-pjgNick})```")
             try:
                 guild_abbreviation_response = await client.wait_for(
                     "message",
