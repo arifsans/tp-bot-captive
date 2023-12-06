@@ -13,6 +13,11 @@ import mysql.connector
 discord_token = os.environ['DISCORD_TOKEN']
 my_guild = discord.Object(id=os.environ['GUILD_ID'])
 
+db_host = os.environ['DB_HOST']
+db_user = os.environ['DB_USER']
+db_password = os.environ['DB_PASSWORD']
+db_name = os.environ['DB_NAME']
+
 
 class MyClient(discord.Client):
     def __init__(self,*,intents:discord.Intents):
@@ -261,11 +266,11 @@ async def delete_user_messages(member, interaction):
         
 # Connect to the MySQL database
 conn = mysql.connector.connect(
-    host='51.79.173.175',
+    host=db_host,
     port=3306,
-    user='u105006_2gWKv8IgI4',
-    password='Sg8GpKPrjNxcS.n.STW=1OLn',
-    database='s105006_event'
+    user=db_user,
+    password=db_password,
+    database=db_name
 )
 cursor = conn.cursor()
 
@@ -319,7 +324,7 @@ async def register_event(interaction: Interaction, pet_name: str, facebook_name:
     updated_total_registrations = cursor.fetchone()[0]
 
     # Assuming you want to print the registration details
-    registration_details = "```Registration Details:\nPet Name: {pet_name}\nFacebook Name: {facebook_name}\nAQW In-game Name: {aqw_name}\nGuild Name: {guild_name}\nPet URL: {pet_url}\nRegistered Number: {updated_total_registrations}```" 
+    registration_details = f"```Registration Details:\nPet Name: {pet_name}\nFacebook Name: {facebook_name}\nAQW In-game Name: {aqw_name}\nGuild Name: {guild_name}\nPet URL: {pet_url}\nRegistered Number: {updated_total_registrations}```" 
 
     await interaction.response.send_message(registration_details)
 
