@@ -334,7 +334,7 @@ async def register_event(interaction: Interaction, pet_name: str, facebook_name:
 # Role ID that is allowed to use the command
 ALLOWED_ROLE_ID = 1145046711790739660
 
-client.tree.command(description='Check registered list')
+@client.tree.command(description='Check registered list')
 async def check_registered_list(interaction: Interaction):
     # Check if the user has the allowed role
     member = interaction.guild.get_member(interaction.user.id)
