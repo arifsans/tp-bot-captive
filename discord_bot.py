@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 from discord import app_commands, Interaction
 import re
 import mysql.connector
+import pandas as pd
 
 discord_token = os.environ['DISCORD_TOKEN']
 my_guild = discord.Object(id=os.environ['GUILD_ID'])
@@ -324,9 +325,46 @@ async def register_event(interaction: Interaction, pet_name: str, facebook_name:
     updated_total_registrations = cursor.fetchone()[0]
 
     # Assuming you want to print the registration details
-    registration_details = f"```Registration Details:\nPet Name: {pet_name}\nFacebook Name: {facebook_name}\nAQW In-game Name: {aqw_name}\nGuild Name: {guild_name}\nPet URL: {pet_url}\nRegistered Number: {updated_total_registrations}```" 
+    registration_details = f"```Registrasi sabung#4 berhasil dengan nomor urut {updated_total_registrations}```" 
 
     await interaction.response.send_message(registration_details)
+
+# ... Your existing code ...
+
+# Role ID that is allowed to use the command
+ALLOWED_ROLE_ID = 1145046711790739660
+
+@client.tree.command(description='Check registered list')
+async def check_registered_list(interaction: Interaction):
+    # Check if the user has the allowed role
+    member = interaction.guild.get_member(interaction.user.id)
+    allowed_role = discord.utils.get(interaction.guild.roles, id=ALLOWED_ROLE_ID)
+
+    if allowed_role and allowed_role in member.roles:
+        # User has the allowed role, proceed with checking the registered list
+
+        # Fetch the registered list from the MySQL database
+        cursor.execute('SELECT * FROM captive_event')
+        registrations = cursor.fetchall()
+
+        if registrations:
+            # Create a DataFrame from the registrations data
+            columns = ["User ID", "Pet Name", "Facebook Name", "AQW Name", "Guild Name", "Pet URL"]
+            df = pd.DataFrame(registrations, columns=columns)
+
+            # Convert the DataFrame to Excel
+            excel_data = pd.ExcelWriter("registered_list.xlsx", engine="xlsxwriter")
+            df.to_excel(excel_data, sheet_name="Registered List", index=False)
+            excel_data.save()
+
+            # Send the Excel file
+            with open("registered_list.xlsx", "rb") as file:
+                await interaction.response.send_message("Registered List:", file=discord.File(file, "registered_list.xlsx"))
+        else:
+            await interaction.response.send_message("No registrations found.")
+    else:
+        await interaction.response.send_message("You do not have the required role to use this command.")
+
 
 
     
