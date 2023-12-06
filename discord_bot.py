@@ -293,9 +293,15 @@ conn.commit()
 # ... Your existing code ...
 
 MAX_REGISTRATIONS = 64  # Set the maximum number of registrations
+ALLOWED_CHANNEL_ID = 1181895637797703680  # Replace with your desired channel ID
 
 @client.tree.command(description='Register for Captive event')
 async def register_event(interaction: Interaction, pet_name: str, facebook_name: str, aqw_name: str, guild_name: str, pet_url: str):
+    # Check if the command is executed in the allowed channel
+    if interaction.channel_id != ALLOWED_CHANNEL_ID:
+        await interaction.response.send_message("This command can only be executed in the specified channel.")
+        return
+    
     # Your existing code for role verification and other checks goes here
 
     # Check the total number of registrations
@@ -328,7 +334,7 @@ async def register_event(interaction: Interaction, pet_name: str, facebook_name:
     # Assuming you want to print the registration details
     registration_details = f"```Registration Details:\nPet Name: {pet_name}\nFacebook Name: {facebook_name}\nAQW In-game Name: {aqw_name}\nGuild Name: {guild_name}\nPet URL: {pet_url}\nRegistered Number: {updated_total_registrations}```" 
 
-    await interaction.response.send_message(registration_details)
+    await interaction.channel.send(registration_details)
 
 # ... Your existing code ...
 
@@ -353,7 +359,7 @@ async def check_registered_list(interaction: Interaction):
             df = pd.DataFrame(registrations)
 
             # Rename the columns with the table names
-            df.columns = ["id", "user_id", "pet_name", "facebook_name", "aqw_name", "guild_name", "pet_url"]
+            df.columns = ["ID", "UUID", "PET NAME", "FACEBOOK NAME", "AQW IGN", "GUILD NAME", "PET URL"]
 
             # Generate a timestamp
             timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
