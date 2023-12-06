@@ -266,118 +266,124 @@ async def delete_user_messages(member, interaction):
             await message.delete()
             break
         
-# Connect to the MySQL database
-conn = mysql.connector.connect(
-    host=db_host,
-    port=3306,
-    user=db_user,
-    password=db_password,
-    database=db_name
-)
-cursor = conn.cursor()
-
-# Create a table if it doesn't exist
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS captive_event (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id BIGINT,
-        pet_name VARCHAR(255),
-        facebook_name VARCHAR(255),
-        aqw_name VARCHAR(255),
-        guild_name VARCHAR(255),
-        pet_url VARCHAR(255)
-    )
-''')
-conn.commit()
-
-# ... Your existing code ...
-
 MAX_REGISTRATIONS = 64  # Set the maximum number of registrations
 ALLOWED_CHANNEL_ID = 1181895637797703680  # Replace with your desired channel ID
 
 @client.tree.command(description='Register for Captive event')
 async def register_event(interaction: Interaction, pet_name: str, facebook_name: str, aqw_name: str, guild_name: str, pet_url: str):
+    # Connect to the MySQL database
+    conn = mysql.connector.connect(
+        host=db_host,
+        port=3306,
+        user=db_user,
+        password=db_password,
+        database=db_name
+    )
+    cursor = conn.cursor()
+
     # Check if the command is executed in the allowed channel
     if interaction.channel_id != ALLOWED_CHANNEL_ID:
         await interaction.response.send_message("This command can only be executed in the specified channel.")
+        cursor.close()
+        conn.close()
         return
     
     # Your existing code for role verification and other checks goes here
 
-    # Check the total number of registrations
-    cursor.execute('SELECT COUNT(*) FROM captive_event')
-    total_registrations = cursor.fetchone()[0]
+    try:
+        # Check the total number of registrations
+        cursor.execute('SELECT COUNT(*) FROM captive_event')
+        total_registrations = cursor.fetchone()[0]
 
-    if total_registrations >= MAX_REGISTRATIONS:
-        await interaction.response.send_message("Sorry, the maximum number of registrations has been reached.")
-        return
+        if total_registrations >= MAX_REGISTRATIONS:
+            await interaction.response.send_message("Sorry, the maximum number of registrations has been reached.")
+            return
 
-    # Check if the user has already registered
-    cursor.execute('SELECT * FROM captive_event WHERE user_id = %s', (interaction.user.id,))
-    existing_registration = cursor.fetchone()
+        # Check if the user has already registered
+        cursor.execute('SELECT * FROM captive_event WHERE user_id = %s', (interaction.user.id,))
+        existing_registration = cursor.fetchone()
 
-    if existing_registration:
-        await interaction.response.send_message("You have already registered for the event.")
-        return
+        if existing_registration:
+            await interaction.response.send_message("You have already registered for the event.")
+            return
 
-    # Store the registration details in the MySQL database
-    cursor.execute('''
-        INSERT INTO captive_event (user_id, pet_name, facebook_name, aqw_name, guild_name, pet_url)
-        VALUES (%s, %s, %s, %s, %s, %s)
-    ''', (interaction.user.id, pet_name, facebook_name, aqw_name, guild_name, pet_url))
-    conn.commit()
+        # Store the registration details in the MySQL database
+        cursor.execute('''
+            INSERT INTO captive_event (user_id, pet_name, facebook_name, aqw_name, guild_name, pet_url)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        ''', (interaction.user.id, pet_name, facebook_name, aqw_name, guild_name, pet_url))
+        conn.commit()
+        
+        # Fetch the updated total number of registrations
+        cursor.execute('SELECT COUNT(*) FROM captive_event')
+        updated_total_registrations = cursor.fetchone()[0]
+
+        # Assuming you want to print the registration details
+        registration_details = f"```Registration Details:\nPet Name: {pet_name}\nFacebook Name: {facebook_name}\nAQW In-game Name: {aqw_name}\nGuild Name: {guild_name}\nPet URL: {pet_url}\nRegistered Number: {updated_total_registrations}```" 
+
+        await interaction.response.send_message(registration_details)
     
-    # Fetch the updated total number of registrations
-    cursor.execute('SELECT COUNT(*) FROM captive_event')
-    updated_total_registrations = cursor.fetchone()[0]
-
-    # Assuming you want to print the registration details
-    registration_details = f"```Registration Details:\nPet Name: {pet_name}\nFacebook Name: {facebook_name}\nAQW In-game Name: {aqw_name}\nGuild Name: {guild_name}\nPet URL: {pet_url}\nRegistered Number: {updated_total_registrations}```" 
-
-    await interaction.channel.send(registration_details)
-
-# ... Your existing code ...
+    finally:
+        # Close the cursor and connection when done
+        cursor.close()
+        conn.close()
 
 # Role ID that is allowed to use the command
 ALLOWED_ROLE_ID = 1145046711790739660
 
 @client.tree.command(description='Check registered list')
 async def check_registered_list(interaction: Interaction):
-    # Check if the user has the allowed role
-    member = interaction.guild.get_member(interaction.user.id)
-    allowed_role = discord.utils.get(interaction.guild.roles, id=ALLOWED_ROLE_ID)
+    # Connect to the MySQL database
+    conn = mysql.connector.connect(
+        host=db_host,
+        port=3306,
+        user=db_user,
+        password=db_password,
+        database=db_name
+    )
+    cursor = conn.cursor()
 
-    if allowed_role and allowed_role in member.roles:
-        # User has the allowed role, proceed with checking the registered list
+    try:
+        # Check if the user has the allowed role
+        member = interaction.guild.get_member(interaction.user.id)
+        allowed_role = discord.utils.get(interaction.guild.roles, id=ALLOWED_ROLE_ID)
 
-        # Fetch the registered list from the MySQL database
-        cursor.execute('SELECT * FROM captive_event')
-        registrations = cursor.fetchall()
+        if allowed_role and allowed_role in member.roles:
+            # User has the allowed role, proceed with checking the registered list
 
-        if registrations:
-            # Create a DataFrame from the registrations data without specifying columns
-            df = pd.DataFrame(registrations)
+            # Fetch the registered list from the MySQL database
+            cursor.execute('SELECT * FROM captive_event')
+            registrations = cursor.fetchall()
 
-            # Rename the columns with the table names
-            df.columns = ["ID", "UUID", "PET NAME", "FACEBOOK NAME", "AQW IGN", "GUILD NAME", "PET URL"]
+            if registrations:
+                # Create a DataFrame from the registrations data without specifying columns
+                df = pd.DataFrame(registrations)
 
-            # Generate a timestamp
-            timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+                # Rename the columns with the table names
+                df.columns = ["ID", "UUID", "PET NAME", "FACEBOOK NAME", "AQW IGN", "GUILD NAME", "PET URL"]
 
-            # Construct the file name with a timestamp
-            file_name = f"registered_list_{timestamp}.xlsx"
+                # Generate a timestamp
+                timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 
-            # Convert the DataFrame to Excel with headers
-            with pd.ExcelWriter(file_name, engine="xlsxwriter") as excel_data:
-                df.to_excel(excel_data, sheet_name="Registered List", index=False, header=True)
+                # Construct the file name with a timestamp
+                file_name = f"registered_list_{timestamp}.xlsx"
 
-            # Send the Excel file
-            with open(file_name, "rb") as file:
-                await interaction.response.send_message("Registered List:", file=discord.File(file, file_name))
+                # Convert the DataFrame to Excel with headers
+                with pd.ExcelWriter(file_name, engine="xlsxwriter") as excel_data:
+                    df.to_excel(excel_data, sheet_name="Registered List", index=False, header=True)
+
+                # Send the Excel file
+                with open(file_name, "rb") as file:
+                    await interaction.response.send_message("Registered List:", file=discord.File(file, file_name))
+            else:
+                await interaction.response.send_message("No registrations found.")
         else:
-            await interaction.response.send_message("No registrations found.")
-    else:
-        await interaction.response.send_message("You do not have the required role to use this command.")
+            await interaction.response.send_message("You do not have the required role to use this command.")
+    finally:
+        # Close the cursor and connection when done
+        cursor.close()
+        conn.close()
+
 
 
 
