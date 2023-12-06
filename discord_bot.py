@@ -10,6 +10,7 @@ from discord import app_commands, Interaction
 import re
 import mysql.connector
 import pandas as pd
+import datetime
 
 discord_token = os.environ['DISCORD_TOKEN']
 my_guild = discord.Object(id=os.environ['GUILD_ID'])
@@ -351,14 +352,22 @@ async def check_registered_list(interaction: Interaction):
             # Create a DataFrame from the registrations data without specifying columns
             df = pd.DataFrame(registrations)
 
-            # Convert the DataFrame to Excel
-            excel_data = pd.ExcelWriter("registered_list.xlsx", engine="xlsxwriter")
-            df.to_excel(excel_data, sheet_name="Registered List", index=False)
-            excel_data.save()
+            # Rename the columns with the table names
+            df.columns = ["id", "user_id", "pet_name", "facebook_name", "aqw_name", "guild_name", "pet_url"]
+
+            # Generate a timestamp
+            timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+
+            # Construct the file name with a timestamp
+            file_name = f"registered_list_{timestamp}.xlsx"
+
+            # Convert the DataFrame to Excel with headers
+            with pd.ExcelWriter(file_name, engine="xlsxwriter") as excel_data:
+                df.to_excel(excel_data, sheet_name="Registered List", index=False, header=True)
 
             # Send the Excel file
-            with open("registered_list.xlsx", "rb") as file:
-                await interaction.response.send_message("Registered List:", file=discord.File(file, "registered_list.xlsx"))
+            with open(file_name, "rb") as file:
+                await interaction.response.send_message("Registered List:", file=discord.File(file, file_name))
         else:
             await interaction.response.send_message("No registrations found.")
     else:
