@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import discord
 import requests
@@ -50,21 +51,13 @@ async def introduce(interaction: Interaction, fullname: str, aqwname: str, guild
         if unverif in member.roles:
             await member.remove_roles(unverif)
             
-        async for message in interaction.channel.history():
-            start = 13
-            end = start + len(f"{member.id}")
-            previousId = message.content[start:end]
-            currentId = str(member.id)
-            if previousId == currentId and message.content.startswith("```Halo User"):
-               await message.delete()
-               break
+        await delete_user_messages(member, interaction)
         
         if guild == "-":
             guild = "Solo Player"
             
         achievements = "0"
         await member.add_roles(verif)
-        text = f"Halo User {member.id}\n\nNAMA PANGGILAN    : {fullname.title()}\nNAMA KARAKTER     : {aqwname.title()}\nGUILD             : {guild.title()}"
         response = requests.get(f'https://account.aq.com/CharPage?id={aqwname}')
         if response.status_code == 200:
             soup = BeautifulSoup(response.content, 'html.parser')
@@ -83,18 +76,43 @@ async def introduce(interaction: Interaction, fullname: str, aqwname: str, guild
                         badges_data = badges_response.json()
                         achievements = f"{len(badges_data)}"
                         
+        text = f"Halo User {member.id}\n\nNAMA PANGGILAN    : {fullname.title()}\nNAMA KARAKTER     : {aqwname.title()}\nGUILD             : {guild.title()}"
         nickname = f"{aqwname.title()} [{achievements}] | {guild.title()}"
         
         if len(nickname) > 32:
             nickname = f"{aqwname.title()} [{achievements}] | -"
-            await interaction.response.send_message(f"```{text}\n\nNama melebihi batas, Nama guild akan disingkat```<@{276681083997650947}>")
+            pjgNick = len(nickname)
+            await interaction.response.send_message(f"```{text}\n\nNama guild lu kepanjangan cok, tolong singkat terus tulis dibawah deh (Max {32-pjgNick})```")
+            try:
+                guild_abbreviation_response = await client.wait_for(
+                    "message",
+                    check=lambda message: message.author.id == member.id and message.channel.id == interaction.channel_id,
+                    timeout=60.0,
+                )
+                guild_abbreviation = guild_abbreviation_response.content
+                text = f"Halo User {member.id}\n\nNAMA PANGGILAN    : {fullname.title()}\nNAMA KARAKTER     : {aqwname.title()}\nGUILD             : {guild_abbreviation.title()}"
+                await delete_user_messages(member, interaction)
+                async for message in interaction.channel.history():
+                    if message.author.id == member.id:
+                        await message.delete()
+                        break
+                await interaction.channel.send(f"```{text}```")
+
+                # Update the nickname with the guild abbreviation
+                nickname = f"{aqwname.title()} [{achievements}] | {guild_abbreviation.title()}"
+            except asyncio.TimeoutError:
+                await interaction.channel.send("Lu kelamaan ajg tolong set manual ya cok <@276681083997650947>.")
         else:
             nickname = nickname
             await interaction.response.send_message(f"```{text}```")
+            
         await member.edit(nick = nickname)
         
     else:
         await interaction.response.send_message("The role verified couldn't be found.")
+        
+
+
 
 
 
@@ -228,5 +246,17 @@ async def rank(interaction: Interaction):
     
     with open('rank_report.md', 'rb') as file:
         await interaction.channel.send(file=discord.File(file, 'rank_report.md'))
+        
+
+async def delete_user_messages(member, interaction):
+    async for message in interaction.channel.history():
+        start = 13
+        end = start + len(f"{member.id}")
+        previousId = message.content[start:end]
+        currentId = str(member.id)
+        if previousId == currentId and message.content.startswith("```Halo User"):
+            await message.delete()
+            break
+
     
 client.run(discord_token)

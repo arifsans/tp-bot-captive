@@ -8,6 +8,7 @@ import os
 from bs4 import BeautifulSoup
 from discord import app_commands, Interaction
 import re
+import mysql.connector
 
 discord_token = os.environ['DISCORD_TOKEN']
 my_guild = discord.Object(id=os.environ['GUILD_ID'])
@@ -257,6 +258,75 @@ async def delete_user_messages(member, interaction):
         if previousId == currentId and message.content.startswith("```Halo User"):
             await message.delete()
             break
+        
+# Connect to the MySQL database
+conn = mysql.connector.connect(
+    host='db-buf-05.sparkedhost.us:3306',
+    user='u105006_8zIf2CsKXJ',
+    password='ugZ8y7y+i5P05@XJMMXmHVVj',
+    database='s105006_sabung4'
+)
+cursor = conn.cursor()
+
+# Create a table if it doesn't exist
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS captive_event (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id BIGINT,
+        pet_name VARCHAR(255),
+        facebook_name VARCHAR(255),
+        aqw_name VARCHAR(255),
+        guild_name VARCHAR(255),
+        pet_url VARCHAR(255)
+    )
+''')
+conn.commit()
+
+# ... Your existing code ...
+
+MAX_REGISTRATIONS = 64  # Set the maximum number of registrations
+
+@client.tree.command(description='Register for Captive event')
+async def register_event(interaction: Interaction, pet_name: str, facebook_name: str, aqw_name: str, guild_name: str, pet_url: str):
+    # Your existing code for role verification and other checks goes here
+
+    # Check the total number of registrations
+    cursor.execute('SELECT COUNT(*) FROM captive_event')
+    total_registrations = cursor.fetchone()[0]
+
+    if total_registrations >= MAX_REGISTRATIONS:
+        await interaction.response.send_message("Sorry, the maximum number of registrations has been reached.")
+        return
+
+    # Check if the user has already registered
+    cursor.execute('SELECT * FROM captive_event WHERE user_id = %s', (interaction.user.id,))
+    existing_registration = cursor.fetchone()
+
+    if existing_registration:
+        await interaction.response.send_message("You have already registered for the event.")
+        return
+
+    # Store the registration details in the MySQL database
+    cursor.execute('''
+        INSERT INTO captive_event (user_id, pet_name, facebook_name, aqw_name, guild_name, pet_url)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    ''', (interaction.user.id, pet_name, facebook_name, aqw_name, guild_name, pet_url))
+    conn.commit()
+    
+    # Fetch the updated total number of registrations
+    cursor.execute('SELECT COUNT(*) FROM captive_event')
+    updated_total_registrations = cursor.fetchone()[0]
+
+    # Assuming you want to print the registration details
+    registration_details = f"Registration Details:\n" \
+                           f"Pet Name: {pet_name}\n" \
+                           f"Facebook Name: {facebook_name}\n" \
+                           f"AQW In-game Name: {aqw_name}\n" \
+                           f"Guild Name: {guild_name}\n" \
+                           f"Pet URL: {pet_url}"
+
+    await interaction.response.send_message(registration_details)
+
 
     
 client.run(discord_token)

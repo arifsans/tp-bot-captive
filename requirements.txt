@@ -2,4 +2,5 @@ discord
 requests
 beautifulsoup4
 discord.py
+mysql-connector-python
 git+https://github.com/Rapptz/discord.py
