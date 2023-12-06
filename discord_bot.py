@@ -326,7 +326,7 @@ async def register_event(interaction: Interaction, pet_name: str, facebook_name:
     updated_total_registrations = cursor.fetchone()[0]
 
     # Assuming you want to print the registration details
-    registration_details = f"```Registrasi sabung#4 berhasil dengan nomor urut {updated_total_registrations}```" 
+    registration_details = f"```Registration Details:\nPet Name: {pet_name}\nFacebook Name: {facebook_name}\nAQW In-game Name: {aqw_name}\nGuild Name: {guild_name}\nPet URL: {pet_url}\nRegistered Number: {updated_total_registrations}```" 
 
     await interaction.response.send_message(registration_details)
 
