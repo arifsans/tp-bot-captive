@@ -272,6 +272,7 @@ ALLOWED_USER_ID = 472750553957400597 # my user id
 
 @client.tree.command(description='Register for Captive event')
 async def register_event(interaction: Interaction, pet_name: str, facebook_name: str, aqw_name: str, guild_name: str, pet_url: str):
+    await interaction.response.send_message("```Please wait...```")
     # Connect to the MySQL database
     conn = mysql.connector.connect(
         host=db_host,
@@ -284,7 +285,7 @@ async def register_event(interaction: Interaction, pet_name: str, facebook_name:
 
     # Check if the command is executed in the allowed channel or by the allowed user
     if interaction.channel_id != ALLOWED_CHANNEL_ID and interaction.user.id != ALLOWED_USER_ID:
-        await interaction.response.send_message("This command can only be executed in the specified channel.")
+        await interaction.channel.send("This command can only be executed in the specified channel.")
         cursor.close()
         conn.close()
         return
@@ -297,7 +298,7 @@ async def register_event(interaction: Interaction, pet_name: str, facebook_name:
         total_registrations = cursor.fetchone()[0]
 
         if total_registrations >= MAX_REGISTRATIONS:
-            await interaction.response.send_message("Sorry, the maximum number of registrations has been reached.")
+            await interaction.channel.send("Sorry, the maximum number of registrations has been reached.")
             return
 
         # Check if the user has already registered
@@ -305,7 +306,7 @@ async def register_event(interaction: Interaction, pet_name: str, facebook_name:
         existing_registration = cursor.fetchone()
 
         if existing_registration:
-            await interaction.response.send_message("You have already registered for the event.")
+            await interaction.channel.send("You have already registered for the event.")
             return
 
         # Store the registration details in the MySQL database
@@ -322,7 +323,7 @@ async def register_event(interaction: Interaction, pet_name: str, facebook_name:
         # Assuming you want to print the registration details
         registration_details = f"```Registration Details:\nPet Name: {pet_name}\nFacebook Name: {facebook_name}\nAQW In-game Name: {aqw_name}\nGuild Name: {guild_name}\nPet URL: {pet_url}\nRegistered Number: {updated_total_registrations}```" 
 
-        await interaction.response.send_message(registration_details)
+        await interaction.channel.send(registration_details)
     
     finally:
         # Close the cursor and connection when done (even if an exception occurs)
@@ -334,6 +335,7 @@ ALLOWED_ROLE_ID = 1145046711790739660
 
 @client.tree.command(description='Check registered list')
 async def check_registered_list(interaction: Interaction):
+    await interaction.response.send_message("```Please wait...```")
     # Connect to the MySQL database
     conn = mysql.connector.connect(
         host=db_host,
@@ -375,11 +377,11 @@ async def check_registered_list(interaction: Interaction):
 
                 # Send the Excel file
                 with open(file_name, "rb") as file:
-                    await interaction.response.send_message("Registered List:", file=discord.File(file, file_name))
+                    await interaction.channel.send("Registered List:", file=discord.File(file, file_name))
             else:
-                await interaction.response.send_message("No registrations found.")
+                await interaction.channel.send("No registrations found.")
         else:
-            await interaction.response.send_message("You do not have the required role to use this command.")
+            await interaction.channel.send("You do not have the required role to use this command.")
     finally:
         # Close the cursor and connection when done
         cursor.close()
