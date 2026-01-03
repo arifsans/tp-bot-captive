@@ -124,7 +124,12 @@ async def introduce(interaction: Interaction, fullname: str, aqwname: str, guild
             nickname = nickname
             await interaction.followup.send(f"```{text}```")
             
-        await member.edit(nick = nickname)
+        try:
+            await member.edit(nick=nickname)
+        except discord.errors.Forbidden:
+            await interaction.followup.send(f"⚠️ I could not change your nickname. My role might be below yours, or I lack 'Manage Nicknames' permission.")
+        except Exception as e:
+            print(f"Failed to edit nickname: {e}")
         
     else:
         await interaction.followup.send("The role verified couldn't be found.")
