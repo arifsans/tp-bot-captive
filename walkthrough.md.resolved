@@ -1,0 +1,52 @@
+# Deployment Walkthrough
+
+Your bot is now Docker-ready! Follow these steps to deploy it to your VPS.
+
+## 1. Prerequisites (On VPS)
+Ensure you have Docker and Docker Compose installed.
+```bash
+# Example for Ubuntu
+sudo apt update
+sudo apt install docker.io docker-compose -y
+```
+
+## 2. Upload Files
+Use `scp` (Secure Copy) from your **local machine** terminal to upload the files.
+Replace [user](file:///c:/Users/Microsoft/Documents/Belajar/tp-bot-captive/discord_bot.py#259-268) with your VPS username and `your_vps_ip` with the IP address.
+
+```bash
+# Upload all necessary files
+scp discord_bot.py requirements.txt Dockerfile docker-compose.yml .env.example user@your_vps_ip:~/my-bot/
+```
+*(Alternatively, you can `git clone` if you use GitHub, but `scp` works for local files)*
+
+## 3. Configure on VPS
+SSH into your VPS and go to the folder.
+```bash
+ssh user@your_vps_ip
+cd ~/my-bot
+```
+
+Create your `.env` file from the example:
+```bash
+cp .env.example .env
+nano .env
+```
+> [!IMPORTANT]
+> Fill in your real `DISCORD_TOKEN`, `DB_HOST`, etc. inside `.env`. Press `Ctrl+X`, `Y`, then `Enter` to save.
+
+## 4. Run with Docker
+Start the bot in the background:
+```bash
+sudo docker-compose up -d --build
+```
+
+## 5. View Logs
+To see if it's running correctly:
+```bash
+sudo docker-compose logs -f
+```
+To stop it later:
+```bash
+sudo docker-compose down
+```

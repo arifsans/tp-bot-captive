@@ -29,7 +29,13 @@ class MyClient(discord.Client):
         
     async def setup_hook(self):
         self.tree.copy_global_to(guild=my_guild)
-        await self.tree.sync(guild=my_guild)
+        try:
+            await self.tree.sync(guild=my_guild)
+        except discord.errors.Forbidden:
+            print("ERROR: Missing Access (403). Please make sure the bot is invited with the 'applications.commands' scope.")
+            print("Generate a new invite link with 'bot' and 'applications.commands' checked in the Developer Portal.")
+        except Exception as e:
+            print(f"Failed to sync commands: {e}")
 
 intents = discord.Intents.default()
 intents.message_content = True
