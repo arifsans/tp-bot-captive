@@ -52,6 +52,9 @@ async def introduce(interaction: Interaction, fullname: str, aqwname: str, guild
         await interaction.response.send_message("Datadiri aja kamu kosongin apalagi hati doi 😭")
         return
     
+    await interaction.response.defer()
+
+    
     member = interaction.user
     verifId = 1144684681263075419
     unverifId = 1144680870272303256
@@ -97,7 +100,7 @@ async def introduce(interaction: Interaction, fullname: str, aqwname: str, guild
         if len(nickname) > 32:
             nickname = f"{aqwname.title()} [{achievements}] | -"
             pjgNick = len(nickname)
-            await interaction.response.send_message(f"```{text}\n\nNama lu / guild lu kepanjangan cok, tolong singkat terus tulis dibawah deh (Max {32-pjgNick})```")
+            await interaction.followup.send(f"```{text}\n\nNama lu / guild lu kepanjangan cok, tolong singkat terus tulis dibawah deh (Max {32-pjgNick})```")
             try:
                 guild_abbreviation_response = await client.wait_for(
                     "message",
@@ -119,12 +122,12 @@ async def introduce(interaction: Interaction, fullname: str, aqwname: str, guild
                 await interaction.channel.send("Lu kelamaan ajg tolong set manual ya cok <@276681083997650947>.")
         else:
             nickname = nickname
-            await interaction.response.send_message(f"```{text}```")
+            await interaction.followup.send(f"```{text}```")
             
         await member.edit(nick = nickname)
         
     else:
-        await interaction.response.send_message("The role verified couldn't be found.")
+        await interaction.followup.send("The role verified couldn't be found.")
         
 
 
