@@ -13,7 +13,7 @@ import pandas as pd
 import datetime
 
 discord_token = os.environ['DISCORD_TOKEN']
-my_guild = discord.Object(id=os.environ['GUILD_ID'])
+my_guild = discord.Object(id=int(os.environ['GUILD_ID']))
 
 db_host = os.environ['DB_HOST']
 db_user = os.environ['DB_USER']
