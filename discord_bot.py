@@ -19,11 +19,12 @@ db_host = os.environ['DB_HOST']
 db_user = os.environ['DB_USER']
 db_password = os.environ['DB_PASSWORD']
 db_name = os.environ['DB_NAME']
+application_id = int(os.environ['APPLICATION_ID'])
 
 
 class MyClient(discord.Client):
-    def __init__(self,*,intents:discord.Intents):
-        super().__init__(intents=intents)
+    def __init__(self,*,intents:discord.Intents, application_id: int):
+        super().__init__(intents=intents, application_id=application_id)
         self.tree = app_commands.CommandTree(self)
         
     async def setup_hook(self):
@@ -33,7 +34,7 @@ class MyClient(discord.Client):
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
-client = MyClient(intents=intents)
+client = MyClient(intents=intents, application_id=application_id)
 
 @client.event
 async def on_ready():

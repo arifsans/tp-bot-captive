@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  discord-bot:
+    build: .
+    container_name: captive-bot
+    restart: always
+    env_file:
+      - .env
+    # Map logs or data if needed, but basic bot needs just env vars
+    # volumes:
+    #   - ./data:/app/data
+    network_mode: host # Or use 'bridge' if you don't need host networking, but host is often easier for simple bots

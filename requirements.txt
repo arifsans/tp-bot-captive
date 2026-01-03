@@ -1,8 +1,7 @@
-discord
+discord.py
 requests
 beautifulsoup4
-discord.py
 mysql-connector-python
 pandas
 xlsxwriter
-git+https://github.com/Rapptz/discord.py
+python-dotenv
